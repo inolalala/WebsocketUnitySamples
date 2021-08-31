@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <p>
+        Switchに表示されているIPアドレスを入力してください。<br />
+        <input type="text" id="inputedIPAddress" value="" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.128.XXX" required />
+    </p>
+    <p>
+        <input type="button" id="connect" value="接続" />
+    </p>
+
+
+    <input type="button" id="sample" value="helloを送信">
+
+    <script>
+        
+        var sock;
+
+        document.addEventListener('DOMContentLoaded', function (e) {
+
+            const ipAddressTextInput = document.getElementById('inputedIPAddress');
+            ipAddressTextInput.value = "192.168.128.";//多分サブネットマスクこれだろうし入力だるいだろうから一旦入れとく
+
+            const connectButton = document.getElementById('connect');
+
+            // 接続ボタン押下時にWebsocketインスタンスを初期化
+            document.getElementById('connect').addEventListener('click', function (e) {
+                
+                
+                sock = new WebSocket(`ws://${ipAddressTextInput.value}:3333`);
+
+                // 接続イベント登録
+                sock.addEventListener('open', function (e) {
+                    console.log('Socket 接続成功');
+
+                });
+
+                // サーバーからデータを受け取った時のイベント登録
+                sock.addEventListener('message', function (e) {
+                    console.log(e.data);
+                });
+
+                //接続後に触れないようにしておく
+
+                connectButton.setAttribute("disabled", true);
+                ipAddressTextInput.setAttribute("disabled", true);
+            });
+
+            // サーバーにテキストデータを送るクリックイベント（テスト）
+            document.getElementById('sample').addEventListener('click', function (e) {
+                sock.send('hello');
+            });
+        });
+
+        
+    </script>
+</body>
+</html>
